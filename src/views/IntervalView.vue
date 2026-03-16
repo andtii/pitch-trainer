@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import { useToneSynth } from '@/composables/useToneSynth'
 import { usePitchDetection } from '@/composables/usePitchDetection'
 import { useSettingsStore } from '@/stores/settings'
+import { useGameStore } from '@/stores/game'
 import {
   INTERVALS,
   getRandomNote,
@@ -14,7 +15,11 @@ import PitchMeter from '@/components/PitchMeter.vue'
 import NoteDisplay from '@/components/NoteDisplay.vue'
 
 const settings = useSettingsStore()
+const game = useGameStore()
 const { playNotes, isPlaying } = useToneSynth()
+
+const sessionStartTime = Date.now()
+let sessionXp = 0
 const {
   isListening,
   detectedNote,
@@ -83,14 +88,24 @@ function selectAnswer(interval: Interval) {
     score.value.correct++
     score.value.streak++
     score.value.bestStreak = Math.max(score.value.bestStreak, score.value.streak)
+    sessionXp += game.recordCorrectAnswer(score.value.streak)
   } else {
     score.value.streak = 0
+    game.recordWrongAnswer()
   }
 }
 
 const isCorrectAnswer = computed(() => {
   if (!selectedAnswer.value || !targetInterval.value) return false
   return selectedAnswer.value === targetInterval.value.shortName
+})
+
+onBeforeUnmount(() => {
+  const duration = Math.round((Date.now() - sessionStartTime) / 1000)
+  if (score.value.total > 0) {
+    game.saveSession('interval', duration, { ...score.value }, undefined, sessionXp)
+  }
+  game.recordPracticeTime(duration)
 })
 
 async function toggleMic() {

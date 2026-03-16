@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import AchievementToast from '@/components/AchievementToast.vue'
 </script>
 
 <template>
@@ -15,6 +16,7 @@ import { RouterView } from 'vue-router'
         <router-link to="/interval">Intervals</router-link>
         <router-link to="/scale">Scales</router-link>
         <router-link to="/ear-training">Ear Training</router-link>
+        <router-link to="/stats" class="stats-link">📊</router-link>
         <router-link to="/settings" class="settings-link">⚙️</router-link>
       </div>
     </nav>
@@ -23,6 +25,8 @@ import { RouterView } from 'vue-router'
   <main class="app-main">
     <RouterView />
   </main>
+
+  <AchievementToast />
 </template>
 
 <style scoped>
@@ -80,6 +84,11 @@ import { RouterView } from 'vue-router'
 }
 
 .settings-link {
+  font-size: 1.1rem !important;
+  border-bottom: none !important;
+}
+
+.stats-link {
   font-size: 1.1rem !important;
   border-bottom: none !important;
 }

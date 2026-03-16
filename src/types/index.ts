@@ -49,3 +49,5 @@ export interface Settings {
   yellowZoneCents: number
   holdTimeMs: number
 }
+
+export * from './game'

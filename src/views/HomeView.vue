@@ -39,6 +39,13 @@ const modes = [
     route: '/ear-training',
     color: 'var(--accent-pink)',
   },
+  {
+    name: 'Your Stats',
+    description: 'Track your progress, achievements, daily goals, and XP.',
+    icon: '📊',
+    route: '/stats',
+    color: 'var(--accent-teal)',
+  },
 ]
 </script>
 

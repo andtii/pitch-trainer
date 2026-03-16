@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import { useToneSynth } from '@/composables/useToneSynth'
 import { useSettingsStore } from '@/stores/settings'
+import { useGameStore } from '@/stores/game'
 import {
   getRandomNote,
   formatNote,
@@ -11,7 +12,11 @@ import {
 import type { NoteInfo, Difficulty, SessionScore, NoteName } from '@/types'
 
 const settings = useSettingsStore()
+const game = useGameStore()
 const { play, isPlaying } = useToneSynth()
+
+const sessionStartTime = Date.now()
+let sessionXp = 0
 
 const difficulty = ref<Difficulty>(settings.difficulty)
 const currentNote = ref<NoteInfo | null>(null)
@@ -75,8 +80,10 @@ function submitAnswer(answer: string) {
     score.value.correct++
     score.value.streak++
     score.value.bestStreak = Math.max(score.value.bestStreak, score.value.streak)
+    sessionXp += game.recordCorrectAnswer(score.value.streak)
   } else {
     score.value.streak = 0
+    game.recordWrongAnswer()
   }
 }
 
@@ -94,6 +101,14 @@ const isCorrect = computed(() => {
 const accuracyPercent = computed(() => {
   if (score.value.total === 0) return 0
   return Math.round((score.value.correct / score.value.total) * 100)
+})
+
+onBeforeUnmount(() => {
+  const duration = Math.round((Date.now() - sessionStartTime) / 1000)
+  if (score.value.total > 0) {
+    game.saveSession('ear-training', duration, { ...score.value }, undefined, sessionXp)
+  }
+  game.recordPracticeTime(duration)
 })
 </script>
 

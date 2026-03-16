@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import { usePitchDetection } from '@/composables/usePitchDetection'
 import { useToneSynth } from '@/composables/useToneSynth'
 import { useSettingsStore } from '@/stores/settings'
+import { useGameStore } from '@/stores/game'
 import { getRandomNote, formatNote } from '@/lib/musicTheory'
 import type { NoteInfo } from '@/types'
 import PitchMeter from '@/components/PitchMeter.vue'
@@ -12,6 +13,9 @@ import PianoKeyboard from '@/components/PianoKeyboard.vue'
 import MicPermission from '@/components/MicPermission.vue'
 
 const settings = useSettingsStore()
+const game = useGameStore()
+
+const sessionStartTime = Date.now()
 const { play, isPlaying } = useToneSynth()
 const {
   isListening,
@@ -72,6 +76,15 @@ async function requestMicPermission() {
     micPermission.value = false
   }
 }
+
+onBeforeUnmount(() => {
+  if (isListening.value) stopListening()
+  const duration = Math.round((Date.now() - sessionStartTime) / 1000)
+  if (duration >= 10) {
+    game.saveSession('free-play', duration, undefined, undefined, 0)
+  }
+  game.recordPracticeTime(duration)
+})
 </script>
 
 <template>

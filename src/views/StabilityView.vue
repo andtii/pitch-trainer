@@ -2,11 +2,16 @@
 import { ref, computed, onUnmounted } from 'vue'
 import { usePitchDetection } from '@/composables/usePitchDetection'
 import { useSettingsStore } from '@/stores/settings'
+import { useGameStore } from '@/stores/game'
 import { formatNote } from '@/lib/musicTheory'
 import StabilityMeter from '@/components/StabilityMeter.vue'
 import PitchGraph from '@/components/PitchGraph.vue'
 
 const settings = useSettingsStore()
+const game = useGameStore()
+
+const sessionStartTime = Date.now()
+let sessionXp = 0
 const {
   isListening,
   detectedNote,
@@ -88,6 +93,7 @@ function stopExercise() {
   // Calculate final score
   if (frequencyHistory.value.length >= 10) {
     stabilityScore.value = Math.max(0, Math.round(100 - stdDevCents.value * 4))
+    sessionXp += game.recordStabilitySession(stabilityScore.value)
   }
 
   isExerciseActive.value = false
@@ -118,6 +124,11 @@ function tryAgain() {
 onUnmounted(() => {
   if (sampleInterval) clearInterval(sampleInterval)
   if (isListening.value) stopListening()
+  const duration = Math.round((Date.now() - sessionStartTime) / 1000)
+  if (stabilityScore.value !== null) {
+    game.saveSession('stability', duration, undefined, stabilityScore.value, sessionXp)
+  }
+  game.recordPracticeTime(duration)
 })
 </script>
 

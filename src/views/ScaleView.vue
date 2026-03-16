@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useToneSynth } from '@/composables/useToneSynth'
 import { usePitchDetection } from '@/composables/usePitchDetection'
 import { useSettingsStore } from '@/stores/settings'
+import { useGameStore } from '@/stores/game'
 import { getScaleNotes, formatNote } from '@/lib/musicTheory'
 import type { NoteInfo, NoteName } from '@/types'
 import PitchMeter from '@/components/PitchMeter.vue'
@@ -12,7 +13,11 @@ import PianoKeyboard from '@/components/PianoKeyboard.vue'
 import ScaleSelector from '@/components/ScaleSelector.vue'
 
 const settings = useSettingsStore()
+const game = useGameStore()
 const { play, isPlaying } = useToneSynth()
+
+const sessionStartTime = Date.now()
+let sessionXp = 0
 const {
   isListening,
   detectedNote,
@@ -77,6 +82,8 @@ function nextNote() {
     playCurrentNote()
   } else {
     currentStep.value = scaleNotes.value.length
+    const scaleName = `${rootNote.value} ${scaleKey.value}`
+    sessionXp += game.recordScaleComplete(scaleName)
   }
 }
 
@@ -116,6 +123,16 @@ watch([centsOff, detectedNote, currentTargetNote], () => {
     clearTimeout(holdTimer)
     holdTimer = null
   }
+})
+
+onBeforeUnmount(() => {
+  if (holdTimer) clearTimeout(holdTimer)
+  if (isListening.value) stopListening()
+  const duration = Math.round((Date.now() - sessionStartTime) / 1000)
+  if (isStarted.value) {
+    game.saveSession('scale', duration, undefined, undefined, sessionXp)
+  }
+  game.recordPracticeTime(duration)
 })
 </script>
 
