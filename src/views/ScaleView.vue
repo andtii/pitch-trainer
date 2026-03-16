@@ -105,13 +105,13 @@ watch([centsOff, detectedNote, currentTargetNote], () => {
     return
   }
 
-  const onTarget = detectedNote.value.midi === currentTargetNote.value.midi && Math.abs(centsOff.value) < 20
+  const onTarget = detectedNote.value.midi === currentTargetNote.value.midi && Math.abs(centsOff.value) < settings.greenZoneCents
 
   if (onTarget && !holdTimer) {
     holdTimer = setTimeout(() => {
       nextNote()
       holdTimer = null
-    }, 1000)
+    }, settings.holdTimeMs)
   } else if (!onTarget && holdTimer) {
     clearTimeout(holdTimer)
     holdTimer = null

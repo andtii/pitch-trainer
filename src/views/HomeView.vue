@@ -5,6 +5,13 @@ const router = useRouter()
 
 const modes = [
   {
+    name: 'Pitch Stability',
+    description: 'Hold any note steady — build the foundation of pitch control. Great for beginners!',
+    icon: '🎯',
+    route: '/stability',
+    color: 'var(--pitch-perfect)',
+  },
+  {
     name: 'Free Play',
     description: 'Play a note, sing it, and see real-time feedback on your pitch accuracy.',
     icon: '🎤',

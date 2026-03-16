@@ -2,6 +2,9 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import type { NoteInfo } from '@/types'
 import { formatNote, frequencyToMidi } from '@/lib/musicTheory'
+import { useSettingsStore } from '@/stores/settings'
+
+const settings = useSettingsStore()
 
 const props = defineProps<{
   targetNote: NoteInfo | null
@@ -145,8 +148,8 @@ function draw() {
       }
 
       let color: string
-      if (deviation <= 10) color = '#22c55e'
-      else if (deviation <= 25) color = '#eab308'
+      if (deviation <= settings.greenZoneCents) color = '#22c55e'
+      else if (deviation <= settings.yellowZoneCents) color = '#eab308'
       else color = '#ef4444'
 
       ctx.beginPath()

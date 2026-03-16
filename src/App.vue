@@ -10,10 +10,12 @@ import { RouterView } from 'vue-router'
         <span class="logo-text">PitchTrainer</span>
       </router-link>
       <div class="nav-links">
+        <router-link to="/stability">Stability</router-link>
         <router-link to="/free-play">Free Play</router-link>
         <router-link to="/interval">Intervals</router-link>
         <router-link to="/scale">Scales</router-link>
         <router-link to="/ear-training">Ear Training</router-link>
+        <router-link to="/settings" class="settings-link">⚙️</router-link>
       </div>
     </nav>
   </header>
@@ -75,6 +77,11 @@ import { RouterView } from 'vue-router'
 .nav-links a.router-link-active {
   color: var(--accent-teal);
   border-bottom-color: var(--accent-teal);
+}
+
+.settings-link {
+  font-size: 1.1rem !important;
+  border-bottom: none !important;
 }
 
 .app-main {

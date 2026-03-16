@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useSettingsStore } from '@/stores/settings'
+
+const settings = useSettingsStore()
 
 const props = defineProps<{
   centsOff: number
@@ -61,13 +64,15 @@ function draw() {
   ctx.lineWidth = 8 * scale
   ctx.stroke()
 
-  // Colored zones
+  // Colored zones — driven by settings store
+  const greenZone = settings.greenZoneCents
+  const yellowZone = settings.yellowZoneCents
   const zones = [
-    { start: -50, end: -25, color: 'rgba(239, 68, 68, 0.4)' },
-    { start: -25, end: -10, color: 'rgba(234, 179, 8, 0.4)' },
-    { start: -10, end: 10, color: 'rgba(34, 197, 94, 0.4)' },
-    { start: 10, end: 25, color: 'rgba(234, 179, 8, 0.4)' },
-    { start: 25, end: 50, color: 'rgba(239, 68, 68, 0.4)' },
+    { start: -50, end: -yellowZone, color: 'rgba(239, 68, 68, 0.4)' },
+    { start: -yellowZone, end: -greenZone, color: 'rgba(234, 179, 8, 0.4)' },
+    { start: -greenZone, end: greenZone, color: 'rgba(34, 197, 94, 0.4)' },
+    { start: greenZone, end: yellowZone, color: 'rgba(234, 179, 8, 0.4)' },
+    { start: yellowZone, end: 50, color: 'rgba(239, 68, 68, 0.4)' },
   ]
 
   for (const zone of zones) {
@@ -106,8 +111,8 @@ function draw() {
 
     const absCents = Math.abs(displayCents)
     let needleColor: string
-    if (absCents <= 10) needleColor = '#22c55e'
-    else if (absCents <= 25) needleColor = '#eab308'
+    if (absCents <= settings.greenZoneCents) needleColor = '#22c55e'
+    else if (absCents <= settings.yellowZoneCents) needleColor = '#eab308'
     else needleColor = '#ef4444'
 
     ctx.shadowColor = needleColor

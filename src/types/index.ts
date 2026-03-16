@@ -27,7 +27,9 @@ export type NoteName = 'C' | 'C#' | 'D' | 'D#' | 'E' | 'F' | 'F#' | 'G' | 'G#' |
 
 export type Difficulty = 'easy' | 'medium' | 'hard'
 
-export type TrainingMode = 'free-play' | 'interval' | 'scale' | 'ear-training'
+export type TrainingMode = 'free-play' | 'interval' | 'scale' | 'ear-training' | 'stability'
+
+export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced'
 
 export interface SessionScore {
   correct: number
@@ -41,4 +43,9 @@ export interface Settings {
   minOctave: number
   maxOctave: number
   difficulty: Difficulty
+  experienceLevel: ExperienceLevel
+  hasCompletedOnboarding: boolean
+  greenZoneCents: number
+  yellowZoneCents: number
+  holdTimeMs: number
 }

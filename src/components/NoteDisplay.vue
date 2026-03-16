@@ -2,6 +2,9 @@
 import type { NoteInfo } from '@/types'
 import { formatNote } from '@/lib/musicTheory'
 import { computed } from 'vue'
+import { useSettingsStore } from '@/stores/settings'
+
+const settings = useSettingsStore()
 
 const props = defineProps<{
   targetNote: NoteInfo | null
@@ -13,7 +16,9 @@ const props = defineProps<{
 const accuracyPercent = computed(() => {
   if (!props.isActive || !props.detectedNote || !props.targetNote) return null
   const cents = Math.abs(props.centsOff)
-  return Math.max(0, Math.round(100 - cents * 2))
+  // Scale accuracy so that greenZone = 100% and yellowZone = 0%
+  const range = settings.yellowZoneCents
+  return Math.max(0, Math.round(100 - (cents / range) * 100))
 })
 
 const accuracyClass = computed(() => {
