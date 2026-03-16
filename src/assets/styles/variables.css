@@ -1,0 +1,45 @@
+:root {
+  /* Background */
+  --bg-primary: #0f0f1a;
+  --bg-secondary: #1a1a2e;
+  --bg-card: #16162a;
+  --bg-input: #1e1e36;
+
+  /* Text */
+  --text-primary: #e8e8f0;
+  --text-secondary: #9ca3b4;
+  --text-muted: #6b7280;
+
+  /* Accent colors */
+  --accent-teal: #00e5cc;
+  --accent-purple: #a855f7;
+  --accent-pink: #f43f5e;
+  --accent-blue: #3b82f6;
+
+  /* Pitch feedback */
+  --pitch-perfect: #22c55e;
+  --pitch-close: #eab308;
+  --pitch-off: #ef4444;
+
+  /* Borders & shadows */
+  --border: #2a2a44;
+  --border-hover: #3d3d5c;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow-teal: 0 0 20px rgba(0, 229, 204, 0.15);
+  --shadow-glow-purple: 0 0 20px rgba(168, 85, 247, 0.15);
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+  /* Sizing */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 400ms ease;
+}
