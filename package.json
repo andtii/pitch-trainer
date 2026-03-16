@@ -1,7 +1,14 @@
 {
   "name": "pitchtrainer",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "author": "andtii",
+  "license": "MIT",
+  "homepage": "https://andtii.github.io/pitch-trainer/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andtii/pitch-trainer.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

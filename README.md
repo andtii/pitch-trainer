@@ -1,6 +1,11 @@
 # 🎵 PitchTrainer
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Deploy](https://github.com/andtii/pitch-trainer/actions/workflows/deploy.yml/badge.svg)](https://github.com/andtii/pitch-trainer/actions/workflows/deploy.yml)
+
 A real-time pitch training app that helps you improve your singing accuracy using your microphone. Built with Vue 3 and the Web Audio API.
+
+**[▶ Live Demo](https://andtii.github.io/pitch-trainer/)**
 
 ## Features
 
@@ -39,3 +44,7 @@ npm run preview
 - **Google Chrome** is recommended for the best Web Audio API and microphone support.
 - Microphone access is required for pitch detection features.
 - A modern browser with Web Audio API support (Chrome, Edge, Firefox, Safari 15+).
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
