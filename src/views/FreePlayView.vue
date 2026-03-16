@@ -101,7 +101,7 @@ async function requestMicPermission() {
     </div>
 
     <MicPermission
-      v-if="micPermission === null"
+      v-if="micPermission !== true"
       :has-permission="micPermission"
       :is-listening="isListening"
       @request-permission="requestMicPermission"

@@ -57,6 +57,7 @@ export function usePitchDetection(referencePitch = 440) {
       detectedNote.value = null
       centsOff.value = 0
       confidence.value = 0
+      recentFrequencies.length = 0
     }
 
     animFrameId = requestAnimationFrame(processAudio)
