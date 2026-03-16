@@ -11,7 +11,11 @@ const props = defineProps<{
 }>()
 
 const canvas = ref<HTMLCanvasElement | null>(null)
+const wrapper = ref<HTMLElement | null>(null)
 let animFrameId: number | null = null
+let resizeObserver: ResizeObserver | null = null
+let logicalW = 400
+let logicalH = 200
 
 interface PitchPoint {
   time: number
@@ -23,14 +27,29 @@ const history: PitchPoint[] = []
 const WINDOW_SECONDS = 8
 const MAX_POINTS = 500
 
+function sizeCanvas() {
+  if (!canvas.value || !wrapper.value) return
+  const w = wrapper.value.clientWidth
+  const h = Math.min(200, Math.round(w * 0.5))
+  logicalW = w
+  logicalH = h
+  const dpr = window.devicePixelRatio || 1
+  canvas.value.width = w * dpr
+  canvas.value.height = h * dpr
+  canvas.value.style.width = w + 'px'
+  canvas.value.style.height = h + 'px'
+  const ctx = canvas.value.getContext('2d')
+  if (ctx) ctx.scale(dpr, dpr)
+}
+
 function draw() {
   const ctx = canvas.value?.getContext('2d')
   if (!ctx || !canvas.value) return
 
-  const w = canvas.value.width / window.devicePixelRatio
-  const h = canvas.value.height / window.devicePixelRatio
+  const w = logicalW
+  const h = logicalH
 
-  ctx.clearRect(0, 0, w * window.devicePixelRatio, h * window.devicePixelRatio)
+  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
   ctx.save()
 
   const now = performance.now() / 1000
@@ -145,24 +164,21 @@ function draw() {
 }
 
 onMounted(() => {
-  if (canvas.value) {
-    const rect = canvas.value.getBoundingClientRect()
-    canvas.value.width = rect.width * window.devicePixelRatio
-    canvas.value.height = rect.height * window.devicePixelRatio
-    const ctx = canvas.value.getContext('2d')
-    if (ctx) ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
-  }
+  sizeCanvas()
+  resizeObserver = new ResizeObserver(() => sizeCanvas())
+  if (wrapper.value) resizeObserver.observe(wrapper.value)
   draw()
 })
 
 onUnmounted(() => {
   if (animFrameId !== null) cancelAnimationFrame(animFrameId)
+  resizeObserver?.disconnect()
   history.length = 0
 })
 </script>
 
 <template>
-  <div class="pitch-graph">
+  <div ref="wrapper" class="pitch-graph">
     <canvas ref="canvas" class="graph-canvas"></canvas>
   </div>
 </template>
@@ -177,8 +193,6 @@ onUnmounted(() => {
 }
 
 .graph-canvas {
-  width: 100%;
-  height: 200px;
   display: block;
 }
 </style>

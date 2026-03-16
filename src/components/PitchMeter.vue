@@ -8,37 +8,60 @@ const props = defineProps<{
 }>()
 
 const canvas = ref<HTMLCanvasElement | null>(null)
+const wrapper = ref<HTMLElement | null>(null)
 let animFrameId: number | null = null
 let displayCents = 0
+let resizeObserver: ResizeObserver | null = null
+// Logical (CSS) size used for drawing calculations
+let logicalW = 320
+let logicalH = 180
 
 function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t
+}
+
+function sizeCanvas() {
+  if (!canvas.value || !wrapper.value) return
+  const containerW = wrapper.value.clientWidth
+  const w = Math.min(containerW, 320)
+  const h = Math.round(w * (180 / 320))
+  logicalW = w
+  logicalH = h
+  const dpr = window.devicePixelRatio || 1
+  canvas.value.width = w * dpr
+  canvas.value.height = h * dpr
+  canvas.value.style.width = w + 'px'
+  canvas.value.style.height = h + 'px'
+  const ctx = canvas.value.getContext('2d')
+  if (ctx) ctx.scale(dpr, dpr)
 }
 
 function draw() {
   const ctx = canvas.value?.getContext('2d')
   if (!ctx || !canvas.value) return
 
-  const w = canvas.value.width
-  const h = canvas.value.height
-  const cx = w / 2
-  const cy = h - 20
+  const w = logicalW
+  const h = logicalH
+  const scale = w / 320
 
-  // Smooth animation
+  const cx = w / 2
+  const cy = h - 20 * scale
+
   displayCents = lerp(displayCents, props.isActive ? props.centsOff : 0, 0.15)
 
-  ctx.clearRect(0, 0, w, h)
+  ctx.save()
+  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
 
-  const radius = Math.min(cx - 20, cy - 20)
+  const radius = Math.min(cx - 20 * scale, cy - 20 * scale)
 
-  // Draw arc background
+  // Arc background
   ctx.beginPath()
   ctx.arc(cx, cy, radius, Math.PI, 0)
   ctx.strokeStyle = 'rgba(42, 42, 68, 0.8)'
-  ctx.lineWidth = 8
+  ctx.lineWidth = 8 * scale
   ctx.stroke()
 
-  // Draw colored zones
+  // Colored zones
   const zones = [
     { start: -50, end: -25, color: 'rgba(239, 68, 68, 0.4)' },
     { start: -25, end: -10, color: 'rgba(234, 179, 8, 0.4)' },
@@ -53,15 +76,15 @@ function draw() {
     ctx.beginPath()
     ctx.arc(cx, cy, radius, startAngle, endAngle)
     ctx.strokeStyle = zone.color
-    ctx.lineWidth = 12
+    ctx.lineWidth = 12 * scale
     ctx.stroke()
   }
 
-  // Draw tick marks
+  // Tick marks
   for (let cents = -50; cents <= 50; cents += 10) {
     const angle = Math.PI + ((cents + 50) / 100) * Math.PI
-    const innerR = radius - 18
-    const outerR = radius + (cents === 0 ? 12 : 6)
+    const innerR = radius - 18 * scale
+    const outerR = radius + (cents === 0 ? 12 : 6) * scale
     const x1 = cx + Math.cos(angle) * innerR
     const y1 = cy + Math.sin(angle) * innerR
     const x2 = cx + Math.cos(angle) * outerR
@@ -75,11 +98,11 @@ function draw() {
     ctx.stroke()
   }
 
-  // Draw needle
+  // Needle
   if (props.isActive) {
     const clampedCents = Math.max(-50, Math.min(50, displayCents))
     const needleAngle = Math.PI + ((clampedCents + 50) / 100) * Math.PI
-    const needleLength = radius - 25
+    const needleLength = radius - 25 * scale
 
     const absCents = Math.abs(displayCents)
     let needleColor: string
@@ -87,9 +110,8 @@ function draw() {
     else if (absCents <= 25) needleColor = '#eab308'
     else needleColor = '#ef4444'
 
-    // Glow
     ctx.shadowColor = needleColor
-    ctx.shadowBlur = 10
+    ctx.shadowBlur = 10 * scale
 
     ctx.beginPath()
     ctx.moveTo(cx, cy)
@@ -98,7 +120,7 @@ function draw() {
       cy + Math.sin(needleAngle) * needleLength
     )
     ctx.strokeStyle = needleColor
-    ctx.lineWidth = 3
+    ctx.lineWidth = 3 * scale
     ctx.lineCap = 'round'
     ctx.stroke()
 
@@ -106,50 +128,47 @@ function draw() {
 
     // Center dot
     ctx.beginPath()
-    ctx.arc(cx, cy, 6, 0, Math.PI * 2)
+    ctx.arc(cx, cy, 6 * scale, 0, Math.PI * 2)
     ctx.fillStyle = needleColor
     ctx.fill()
   }
 
   // Labels
-  ctx.font = '12px var(--font-sans, system-ui)'
+  ctx.font = `${Math.round(12 * scale)}px var(--font-sans, system-ui)`
   ctx.fillStyle = 'rgba(255,255,255,0.4)'
   ctx.textAlign = 'center'
-  ctx.fillText('♭ flat', cx - radius + 20, cy + 16)
-  ctx.fillText('sharp ♯', cx + radius - 20, cy + 16)
+  ctx.fillText('♭ flat', cx - radius + 20 * scale, cy + 16 * scale)
+  ctx.fillText('sharp ♯', cx + radius - 20 * scale, cy + 16 * scale)
 
   // Cents display
   if (props.isActive) {
     const absCents = Math.abs(Math.round(displayCents))
     const sign = displayCents > 0.5 ? '+' : displayCents < -0.5 ? '-' : ''
-    ctx.font = 'bold 24px var(--font-mono, monospace)'
-    ctx.fillStyle = props.isActive ? '#e8e8f0' : 'rgba(255,255,255,0.3)'
+    ctx.font = `bold ${Math.round(24 * scale)}px var(--font-mono, monospace)`
+    ctx.fillStyle = '#e8e8f0'
     ctx.textAlign = 'center'
-    ctx.fillText(`${sign}${absCents}¢`, cx, cy - 30)
+    ctx.fillText(`${sign}${absCents}¢`, cx, cy - 30 * scale)
   }
 
+  ctx.restore()
   animFrameId = requestAnimationFrame(draw)
 }
 
 onMounted(() => {
-  if (canvas.value) {
-    canvas.value.width = canvas.value.offsetWidth * window.devicePixelRatio
-    canvas.value.height = canvas.value.offsetHeight * window.devicePixelRatio
-    const ctx = canvas.value.getContext('2d')
-    if (ctx) ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
-    canvas.value.style.width = canvas.value.offsetWidth + 'px'
-    canvas.value.style.height = canvas.value.offsetHeight + 'px'
-  }
+  sizeCanvas()
+  resizeObserver = new ResizeObserver(() => sizeCanvas())
+  if (wrapper.value) resizeObserver.observe(wrapper.value)
   draw()
 })
 
 onUnmounted(() => {
   if (animFrameId !== null) cancelAnimationFrame(animFrameId)
+  resizeObserver?.disconnect()
 })
 </script>
 
 <template>
-  <div class="pitch-meter">
+  <div ref="wrapper" class="pitch-meter">
     <canvas ref="canvas" class="meter-canvas"></canvas>
     <div v-if="noteName && isActive" class="detected-note">{{ noteName }}</div>
     <div v-else class="detected-note inactive">—</div>
@@ -162,11 +181,13 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  max-width: 320px;
 }
 
 .meter-canvas {
-  width: 320px;
-  height: 180px;
+  display: block;
+  max-width: 100%;
 }
 
 .detected-note {
