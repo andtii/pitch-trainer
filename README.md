@@ -1,5 +1,41 @@
-# Vue 3 + TypeScript + Vite
+# 🎵 PitchTrainer
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+A real-time pitch training app that helps you improve your singing accuracy using your microphone. Built with Vue 3 and the Web Audio API.
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## Features
+
+- **🎤 Free Play** — Pick or randomize a target note, sing it, and get instant visual feedback on pitch accuracy via a meter and graph.
+- **🎵 Interval Training** — Learn to identify and sing musical intervals. Includes both ear-identification and sing-along modes.
+- **🎹 Scale Training** — Practice singing scales step by step with auto-advance when you hit the right pitch. Supports major, minor, and other scale types in any key.
+- **👂 Ear Training** — Hear a note and guess which one it is. Three difficulty levels: natural notes only, chromatic, or free-form input.
+
+## Tech Stack
+
+- [Vue 3](https://vuejs.org/) with `<script setup>` and Composition API
+- [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vite.dev/) for development and bundling
+- [Pinia](https://pinia.vuejs.org/) for state management
+- [Vue Router](https://router.vuejs.org/) for client-side routing
+- Web Audio API for pitch detection (autocorrelation) and tone synthesis
+
+## Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Start the dev server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview the production build
+npm run preview
+```
+
+## Browser Requirements
+
+- **Google Chrome** is recommended for the best Web Audio API and microphone support.
+- Microphone access is required for pitch detection features.
+- A modern browser with Web Audio API support (Chrome, Edge, Firefox, Safari 15+).

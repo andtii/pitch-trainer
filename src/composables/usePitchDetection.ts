@@ -66,18 +66,27 @@ export function usePitchDetection(referencePitch = 440) {
     if (isListening.value) return
 
     const ctx = await ensureReady()
-    mediaStream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: false,
-        noiseSuppression: false,
-        autoGainControl: false,
-      },
-    })
+    let stream: MediaStream | null = null
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+        },
+      })
 
-    const source = ctx.createMediaStreamSource(mediaStream)
-    analyser = ctx.createAnalyser()
-    analyser.fftSize = BUFFER_SIZE
-    source.connect(analyser)
+      const source = ctx.createMediaStreamSource(stream)
+      analyser = ctx.createAnalyser()
+      analyser.fftSize = BUFFER_SIZE
+      source.connect(analyser)
+      mediaStream = stream
+    } catch (err) {
+      // Clean up the stream if mic was granted but setup failed
+      stream?.getTracks().forEach((t) => t.stop())
+      analyser = null
+      throw err
+    }
 
     isListening.value = true
     recentFrequencies.length = 0
